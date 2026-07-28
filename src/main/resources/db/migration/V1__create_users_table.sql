@@ -1,0 +1,7 @@
+CREATE TABLE tb_user(
+   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+   username VARCHAR(25) NOT NULL UNIQUE,
+   password VARCHAR(100) NOT NULL,
+   role VARCHAR(25) NOT NULL,
+   created_at TIMESTAMP WITH TIME ZONE NOT NULL
+)
