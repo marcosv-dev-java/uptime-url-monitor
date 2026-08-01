@@ -3,8 +3,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.beans.ConstructorProperties;
 import java.time.Instant;
 import java.util.UUID;
 
