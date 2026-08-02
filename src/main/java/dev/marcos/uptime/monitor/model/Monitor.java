@@ -28,4 +28,10 @@ public class Monitor {
     @Column(nullable = false)
     private Boolean active;
 
+    public Monitor(User owner, String name, String url) {
+        this.owner = owner;
+        this.name = name;
+        this.url = url;
+        this.active = true;
+    }
 }
