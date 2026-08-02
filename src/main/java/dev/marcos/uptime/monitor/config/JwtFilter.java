@@ -3,14 +3,12 @@ package dev.marcos.uptime.monitor.config;
 import dev.marcos.uptime.monitor.model.User;
 import dev.marcos.uptime.monitor.model.UserDetailsImpl;
 import dev.marcos.uptime.monitor.repository.UserDetailsServiceImpl;
-import dev.marcos.uptime.monitor.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -29,11 +27,13 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = this.recoverToken(request);
-        if(token != null){
+        if(token != null) {
             var username = this.tokenService.validateToken(token);
-            UserDetailsImpl user = (UserDetailsImpl) repository.loadUserByUsername(username);
-            var auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            if (username != null) {
+                UserDetailsImpl user = (UserDetailsImpl) repository.loadUserByUsername(username);
+                var auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
         }
         filterChain.doFilter(request,response);
     }

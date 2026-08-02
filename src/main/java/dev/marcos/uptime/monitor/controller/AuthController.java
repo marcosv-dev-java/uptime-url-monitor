@@ -2,11 +2,14 @@ package dev.marcos.uptime.monitor.controller;
 
 import dev.marcos.uptime.monitor.config.TokenService;
 import dev.marcos.uptime.monitor.dto.request.LoginRequest;
+import dev.marcos.uptime.monitor.dto.request.RegisterRequest;
 import dev.marcos.uptime.monitor.dto.response.LoginResponse;
+import dev.marcos.uptime.monitor.dto.response.RegisterResponse;
+import dev.marcos.uptime.monitor.model.Role;
 import dev.marcos.uptime.monitor.model.User;
-import dev.marcos.uptime.monitor.repository.UserDetailsServiceImpl;
 import dev.marcos.uptime.monitor.repository.UserRepository;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,6 +37,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity login(@Valid @RequestBody LoginRequest request){
+        System.out.println("Joined in login method");
         var usernamePassword = new UsernamePasswordAuthenticationToken(request.username(),request.password());
         var auth =  authenticationManager.authenticate(usernamePassword);
         User user = repository.findByUsername(auth.getName())
@@ -42,7 +46,15 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponse(token));
     }
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> register(){
-
+    public ResponseEntity register(@RequestBody @Valid RegisterRequest request){
+        System.out.println("\033[1;31mJoined in register method\033[m");
+        if(repository.findByUsername(request.username()).isPresent()){
+            return ResponseEntity.badRequest().body("Username is already in use");
+        }
+        String encodedPassword = encoder.encode(request.password());
+        User user = new User(request.username(), encodedPassword, Role.USER);
+        repository.save(user);
+        String token = tokenService.generateToken(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterResponse(token));
     }
 }
