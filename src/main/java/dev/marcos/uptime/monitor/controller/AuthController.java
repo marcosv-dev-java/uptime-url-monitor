@@ -1,20 +1,11 @@
 package dev.marcos.uptime.monitor.controller;
 
-import dev.marcos.uptime.monitor.config.TokenService;
 import dev.marcos.uptime.monitor.dto.request.LoginRequest;
 import dev.marcos.uptime.monitor.dto.request.RegisterRequest;
-import dev.marcos.uptime.monitor.dto.response.LoginResponse;
-import dev.marcos.uptime.monitor.dto.response.RegisterResponse;
-import dev.marcos.uptime.monitor.model.Role;
-import dev.marcos.uptime.monitor.model.User;
-import dev.marcos.uptime.monitor.repository.UserRepository;
+import dev.marcos.uptime.monitor.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,36 +14,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-    private final TokenService tokenService;
-    private final PasswordEncoder encoder;
-    private final AuthenticationManager authenticationManager;
-    private final UserRepository repository;
+    private final AuthService service;
 
-    public AuthController(TokenService tokenService, PasswordEncoder encoder, AuthenticationManager authenticationManager, UserRepository repository) {
-        this.tokenService = tokenService;
-        this.encoder = encoder;
-        this.authenticationManager = authenticationManager;
-        this.repository = repository;
+    public AuthController(AuthService service) {
+        this.service = service;
     }
 
     @PostMapping("/login")
     public ResponseEntity login(@Valid @RequestBody LoginRequest request){
-        var usernamePassword = new UsernamePasswordAuthenticationToken(request.username(),request.password());
-        var auth =  authenticationManager.authenticate(usernamePassword);
-        User user = repository.findByUsername(auth.getName())
-                .orElseThrow(() -> new UsernameNotFoundException("Username " + auth.getName() + " not found."));
-        String token = tokenService.generateToken(user);
-        return ResponseEntity.ok(new LoginResponse(token));
+        return ResponseEntity.ok(service.loginVerification(request));
     }
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody @Valid RegisterRequest request){
-        if(repository.findByUsername(request.username()).isPresent()){
-            return ResponseEntity.badRequest().body("Username is already in use");
-        }
-        String encodedPassword = encoder.encode(request.password());
-        User user = new User(request.username(), encodedPassword, Role.USER);
-        repository.save(user);
-        String token = tokenService.generateToken(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterResponse(token));
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.register(request));
     }
 }
