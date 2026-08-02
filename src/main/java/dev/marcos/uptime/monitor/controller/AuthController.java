@@ -37,7 +37,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity login(@Valid @RequestBody LoginRequest request){
-        System.out.println("Joined in login method");
         var usernamePassword = new UsernamePasswordAuthenticationToken(request.username(),request.password());
         var auth =  authenticationManager.authenticate(usernamePassword);
         User user = repository.findByUsername(auth.getName())
@@ -47,7 +46,6 @@ public class AuthController {
     }
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody @Valid RegisterRequest request){
-        System.out.println("\033[1;31mJoined in register method\033[m");
         if(repository.findByUsername(request.username()).isPresent()){
             return ResponseEntity.badRequest().body("Username is already in use");
         }

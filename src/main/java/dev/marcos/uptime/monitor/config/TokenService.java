@@ -9,14 +9,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+
 @Service
 public class TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
 
-    public String generateToken(User user){
+    public String generateToken(User user) {
         Algorithm algorithm = Algorithm.HMAC256(secret);
         try {
             return JWT.create()
@@ -24,25 +24,30 @@ public class TokenService {
                     .withSubject(user.getUsername())
                     .withExpiresAt(generateExpirationDate())
                     .sign(algorithm);
-        }catch (JWTCreationException exception){
+        } catch (JWTCreationException exception) {
             throw new RuntimeException("Error while generating JWT Token");
         }
     }
-    public String validateToken(String token){
+
+    public String validateToken(String token) {
         Algorithm algorithm = Algorithm.HMAC256(secret);
-        try{
+        try {
             return JWT.require(algorithm)
                     .withIssuer("jwt-api")
                     .build()
                     .verify(token)
                     .getSubject();
-        }catch (JWTVerificationException exception){
+        } catch (JWTVerificationException exception) {
+            System.out.println("VALIDATION FAILED: " + exception.getMessage());
             return null;
         }
     }
 
 
-    private Instant generateExpirationDate(){
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.UTC);
+    private Instant generateExpirationDate() {
+        return Instant.now().plus(2, ChronoUnit.HOURS);
     }
+
+
+
 }

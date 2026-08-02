@@ -29,6 +29,8 @@ public class JwtFilter extends OncePerRequestFilter {
         String token = this.recoverToken(request);
         if(token != null) {
             var username = this.tokenService.validateToken(token);
+            System.out.println("Token: " + token);
+            System.out.println("Username: " + username);
             if (username != null) {
                 UserDetailsImpl user = (UserDetailsImpl) repository.loadUserByUsername(username);
                 var auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
