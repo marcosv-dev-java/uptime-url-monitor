@@ -1,6 +1,7 @@
 package dev.marcos.uptime.monitor.service;
 
 import dev.marcos.uptime.monitor.dto.request.MonitorRequest;
+import dev.marcos.uptime.monitor.dto.request.MonitorUpdateRequest;
 import dev.marcos.uptime.monitor.dto.response.MonitorResponse;
 import dev.marcos.uptime.monitor.exceptions.MonitorNotFoundException;
 import dev.marcos.uptime.monitor.model.Monitor;
@@ -13,7 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -34,6 +35,14 @@ public class MonitorService {
     private MonitorResponse entityToResponse(Monitor monitor){
         return new MonitorResponse(monitor.getId(), monitor.getName(), monitor.getUrl(), monitor.getLastCheckedAt(), monitor.getNextCheckDue(), monitor.getCurrentStatus());
     }
+    private Monitor getMonitorWithIDORPrevention(Long id){
+        Monitor monitor = repository.findById(id)
+                .orElseThrow(() -> new MonitorNotFoundException("Monitor not found."));
+        User userInContext = getUserInContext();
+        if (!monitor.getOwner().equals(userInContext))
+            throw new AccessDeniedException("User " + userInContext.getUsername() +  "Not permitted for this request.");
+        return monitor;
+    }
 
     public MonitorResponse createMonitor(MonitorRequest request)  {
         Monitor monitor = new Monitor(request.name(),request.url(),request.intervalSeconds());
@@ -44,11 +53,7 @@ public class MonitorService {
     }
 
     public MonitorResponse getMonitorById(Long id){
-        Monitor monitor = repository.findById(id)
-                .orElseThrow(() -> new MonitorNotFoundException("Monitor not found."));
-        User userInContext = getUserInContext();
-        if (!monitor.getOwner().equals(userInContext))
-            throw new AccessDeniedException("User " + userInContext.getUsername() +  "Not permitted for this request.");
+        Monitor monitor =  getMonitorWithIDORPrevention(id);
         return entityToResponse(monitor);
     }
     public List<MonitorResponse> getAllMonitors(){
@@ -56,6 +61,16 @@ public class MonitorService {
                 .stream()
                 .map(this::entityToResponse)
                 .toList();
+    }
+
+    public MonitorResponse updateMonitor(Long id, MonitorUpdateRequest request){
+        Monitor monitor = getMonitorWithIDORPrevention(id);
+        if (!monitor.getActive()) throw new IllegalStateException("Cannot update a inactive monitor.");
+        if (request.name() != null) monitor.setName(request.name());
+        if (request.url() != null) monitor.setUrl(request.url());
+        if (request.intervalSeconds() != null) monitor.setIntervalSeconds(request.intervalSeconds());
+        repository.save(monitor);
+        return entityToResponse(monitor);
     }
 
 }
