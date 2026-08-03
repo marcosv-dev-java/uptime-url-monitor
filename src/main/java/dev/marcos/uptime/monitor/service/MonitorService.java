@@ -2,9 +2,11 @@ package dev.marcos.uptime.monitor.service;
 
 import dev.marcos.uptime.monitor.dto.request.MonitorRequest;
 import dev.marcos.uptime.monitor.dto.request.MonitorUpdateRequest;
+import dev.marcos.uptime.monitor.dto.request.PauseRequest;
 import dev.marcos.uptime.monitor.dto.response.MonitorResponse;
 import dev.marcos.uptime.monitor.exceptions.MonitorNotFoundException;
 import dev.marcos.uptime.monitor.model.Monitor;
+import dev.marcos.uptime.monitor.model.TimeUnit;
 import dev.marcos.uptime.monitor.model.User;
 import dev.marcos.uptime.monitor.model.UserDetailsImpl;
 import dev.marcos.uptime.monitor.repository.MonitorRepository;
@@ -15,6 +17,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
@@ -71,6 +74,21 @@ public class MonitorService {
         if (request.intervalSeconds() != null) monitor.setIntervalSeconds(request.intervalSeconds());
         repository.save(monitor);
         return entityToResponse(monitor);
+    }
+
+    public MonitorResponse softDeleteMonitor(Long id){
+        Monitor monitor = getMonitorWithIDORPrevention(id);
+        if (!monitor.getActive()) throw new IllegalStateException("Monitor already inactive.");
+        monitor.setActive(false);
+        repository.save(monitor);
+        return entityToResponse(monitor);
+    }
+
+    public void pauseMonitorUntil(PauseRequest request){
+        Monitor monitor = getMonitorWithIDORPrevention(request.id());
+        if (!monitor.getActive()) throw new IllegalStateException("Cannot update a inactive monitor.");
+        monitor.setPausedUntil(Instant.now().plus(request.interval(), request.timeUnit().toChronoUnit()));
+        repository.save(monitor);
     }
 
 }

@@ -1,0 +1,1 @@
+ALTER TABLE tb_monitor ADD COLUMN paused_until TIMESTAMP WITH TIME ZONE;

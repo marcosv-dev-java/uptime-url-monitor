@@ -33,6 +33,8 @@ public class Monitor {
     private MonitorStatus currentStatus;
     @Column(nullable = false)
     private Boolean active;
+    @Column(name = "paused_until")
+    private Instant pausedUntil;
 
     public Monitor(String name, String url,Integer intervalSeconds) {
         this.name = name;
