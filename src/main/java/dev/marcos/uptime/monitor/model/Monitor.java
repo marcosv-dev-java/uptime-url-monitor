@@ -1,11 +1,17 @@
 package dev.marcos.uptime.monitor.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.Instant;
 
 @Entity
 @Table(name = "tb_monitor")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Monitor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,10 +34,10 @@ public class Monitor {
     @Column(nullable = false)
     private Boolean active;
 
-    public Monitor(User owner, String name, String url) {
-        this.owner = owner;
+    public Monitor(String name, String url,Integer intervalSeconds) {
         this.name = name;
         this.url = url;
+        this.intervalSeconds = intervalSeconds;
         this.active = true;
     }
 }
