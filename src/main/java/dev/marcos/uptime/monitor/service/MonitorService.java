@@ -12,6 +12,9 @@ import dev.marcos.uptime.monitor.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -48,4 +51,11 @@ public class MonitorService {
             throw new AccessDeniedException("User " + userInContext.getUsername() +  "Not permitted for this request.");
         return entityToResponse(monitor);
     }
+    public List<MonitorResponse> getAllMonitors(){
+        return repository.findMonitorByOwner(getUserInContext())
+                .stream()
+                .map(this::entityToResponse)
+                .toList();
+    }
+
 }
