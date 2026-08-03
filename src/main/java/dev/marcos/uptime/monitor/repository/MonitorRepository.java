@@ -9,4 +9,5 @@ public interface MonitorRepository extends JpaRepository<Monitor, Long> {
 
     Optional<Monitor> findByName(String name);
     Optional<Monitor> findByUrl(String url);
+
 }
