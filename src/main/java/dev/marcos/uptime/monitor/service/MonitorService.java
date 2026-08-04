@@ -6,7 +6,6 @@ import dev.marcos.uptime.monitor.dto.request.PauseRequest;
 import dev.marcos.uptime.monitor.dto.response.MonitorResponse;
 import dev.marcos.uptime.monitor.exceptions.MonitorNotFoundException;
 import dev.marcos.uptime.monitor.model.Monitor;
-import dev.marcos.uptime.monitor.model.TimeUnit;
 import dev.marcos.uptime.monitor.model.User;
 import dev.marcos.uptime.monitor.model.UserDetailsImpl;
 import dev.marcos.uptime.monitor.repository.MonitorRepository;
@@ -84,8 +83,8 @@ public class MonitorService {
         return entityToResponse(monitor);
     }
 
-    public void pauseMonitorUntil(PauseRequest request){
-        Monitor monitor = getMonitorWithIDORPrevention(request.id());
+    public void pauseMonitorUntil(PauseRequest request, Long id){
+        Monitor monitor = getMonitorWithIDORPrevention(id);
         if (!monitor.getActive()) throw new IllegalStateException("Cannot update a inactive monitor.");
         monitor.setPausedUntil(Instant.now().plus(request.interval(), request.timeUnit().toChronoUnit()));
         repository.save(monitor);
