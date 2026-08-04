@@ -85,8 +85,16 @@ public class MonitorService {
 
     public void pauseMonitorUntil(PauseRequest request, Long id){
         Monitor monitor = getMonitorWithIDORPrevention(id);
-        if (!monitor.getActive()) throw new IllegalStateException("Cannot update a inactive monitor.");
+        if (!monitor.getActive()) throw new IllegalStateException("Cannot pause a inactive monitor.");
         monitor.setPausedUntil(Instant.now().plus(request.interval(), request.timeUnit().toChronoUnit()));
+        repository.save(monitor);
+    }
+    public void forceResumeMonitor(Long id){
+        Monitor monitor = getMonitorWithIDORPrevention(id);
+        if (!monitor.getActive()) throw new IllegalStateException("Cannot unpause a inactive monitor.");
+        if (monitor.getPausedUntil() == null)
+            throw new IllegalStateException("Monitor is not paused.");
+        monitor.setPausedUntil(null);
         repository.save(monitor);
     }
 
