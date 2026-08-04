@@ -46,6 +46,11 @@ public class MonitorController {
         service.pauseMonitorUntil(request, id);
         return ResponseEntity.noContent().build();
     }
+    @PutMapping("/{id}/unpause")
+    public ResponseEntity<Void> resumeMonitor(@PathVariable Long id){
+        service.forceResumeMonitor(id);
+        return ResponseEntity.noContent().build();
+    }
 
 
 }
