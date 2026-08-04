@@ -42,7 +42,7 @@ public class MonitorService {
                 .orElseThrow(() -> new MonitorNotFoundException("Monitor not found."));
         User userInContext = getUserInContext();
         if (!monitor.getOwner().equals(userInContext))
-            throw new AccessDeniedException("User " + userInContext.getUsername() +  "Not permitted for this request.");
+            throw new AccessDeniedException("User " + userInContext.getUsername() +  " are not permitted for this request.");
         return monitor;
     }
 

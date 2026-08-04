@@ -41,5 +41,6 @@ public class Monitor {
         this.url = url;
         this.intervalSeconds = intervalSeconds;
         this.active = true;
+        this.currentStatus = MonitorStatus.UNKNOWN;
     }
 }
