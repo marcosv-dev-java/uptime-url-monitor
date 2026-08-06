@@ -41,7 +41,7 @@ public class MonitorService {
         Monitor monitor = repository.findById(id)
                 .orElseThrow(() -> new MonitorNotFoundException("Monitor not found."));
         User userInContext = getUserInContext();
-        if (!monitor.getOwner().equals(userInContext))
+        if (!monitor.getOwner().getId().equals(userInContext.getId()))
             throw new AccessDeniedException("User " + userInContext.getUsername() +  " are not permitted for this request.");
         return monitor;
     }
