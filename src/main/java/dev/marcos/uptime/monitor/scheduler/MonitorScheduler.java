@@ -20,10 +20,12 @@ import java.util.List;
 public class MonitorScheduler {
     private final MonitorRepository monitorRepository;
     private final CheckResultRepository checkResultRepository;
+    private final RestClient restClient;
 
-    public MonitorScheduler(MonitorRepository monitorRepository, CheckResultRepository checkResultRepository) {
+    public MonitorScheduler(MonitorRepository monitorRepository, CheckResultRepository checkResultRepository, RestClient restClient) {
         this.monitorRepository = monitorRepository;
         this.checkResultRepository = checkResultRepository;
+        this.restClient = restClient;
     }
 
     @Scheduled(fixedRate = 30000)
@@ -40,7 +42,7 @@ public class MonitorScheduler {
         boolean success = false;
         String errorMessage = null;
         try {
-            response = RestClient.create().get()
+            response = restClient.get()
                     .uri(monitor.getUrl())
                     .retrieve()
                     .toBodilessEntity();
