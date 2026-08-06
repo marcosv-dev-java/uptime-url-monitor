@@ -29,4 +29,12 @@ public class CheckResult {
     @Column(name = "error_message")
     private String errorMessage;
 
+    public CheckResult(Monitor monitor, Instant checkedAt, Integer httpStatus, Long responseTimeMs, Boolean success, String errorMessage) {
+        this.monitor = monitor;
+        this.checkedAt = checkedAt;
+        this.httpStatus = httpStatus;
+        this.responseTimeMs = responseTimeMs;
+        this.success = success;
+        this.errorMessage = errorMessage;
+    }
 }
