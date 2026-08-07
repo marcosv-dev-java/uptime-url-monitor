@@ -1,0 +1,1 @@
+CREATE INDEX idx_monitor_next_check_due ON tb_monitor(next_check_due);
