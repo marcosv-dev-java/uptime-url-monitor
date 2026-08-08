@@ -3,9 +3,12 @@ package dev.marcos.uptime.monitor.controller;
 import dev.marcos.uptime.monitor.dto.request.MonitorRequest;
 import dev.marcos.uptime.monitor.dto.request.MonitorUpdateRequest;
 import dev.marcos.uptime.monitor.dto.request.PauseRequest;
+import dev.marcos.uptime.monitor.dto.response.CheckResultSummaryResponse;
 import dev.marcos.uptime.monitor.dto.response.MonitorResponse;
+import dev.marcos.uptime.monitor.service.CheckResultService;
 import dev.marcos.uptime.monitor.service.MonitorService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +19,11 @@ import java.util.List;
 @RequestMapping("/monitors")
 public class MonitorController {
     private final MonitorService service;
+    private final CheckResultService checkService;
 
-    public MonitorController(MonitorService service) {
+    public MonitorController(MonitorService service, CheckResultService checkService) {
         this.service = service;
+        this.checkService = checkService;
     }
 
     @GetMapping
@@ -50,6 +55,11 @@ public class MonitorController {
     public ResponseEntity<Void> resumeMonitor(@PathVariable Long id){
         service.forceResumeMonitor(id);
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping("/{id}/checks")
+    public ResponseEntity<List<CheckResultSummaryResponse>> getPageOfChecksMonitor(@PathVariable Long id,
+                                                                                   @RequestParam(defaultValue = "0") Integer pageNumber){
+        return ResponseEntity.ok().body(checkService.getMonitorCheckHistory(id, pageNumber));
     }
 
 
