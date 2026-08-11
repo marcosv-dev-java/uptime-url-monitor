@@ -1,6 +1,8 @@
 package dev.marcos.uptime.monitor.service;
 
+import dev.marcos.uptime.monitor.dto.request.UptimePercentageRequest;
 import dev.marcos.uptime.monitor.dto.response.CheckResultSummaryResponse;
+import dev.marcos.uptime.monitor.dto.response.UptimePercentageResponse;
 import dev.marcos.uptime.monitor.exceptions.MonitorNotFoundException;
 import dev.marcos.uptime.monitor.model.CheckResult;
 import dev.marcos.uptime.monitor.model.Monitor;
@@ -68,8 +70,10 @@ public class CheckResultService {
         }
         return  responses;
         }
-        public Double getPercentOfSuccessInPeriod(Instant startDate, Instant endDate){
-
+        public UptimePercentageResponse getPercentOfSuccessInPeriod(UptimePercentageRequest request){
+        Monitor monitor = this.getMonitorWithIDORPrevention(request.monitorId());
+        Double percentOfSuccess = repository.findAverageBySuccess(request.startDate(),request.endDate(),monitor);
+        return new UptimePercentageResponse(percentOfSuccess);
         }
 
     }
