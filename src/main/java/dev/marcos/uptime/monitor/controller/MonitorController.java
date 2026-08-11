@@ -5,14 +5,15 @@ import dev.marcos.uptime.monitor.dto.request.MonitorUpdateRequest;
 import dev.marcos.uptime.monitor.dto.request.PauseRequest;
 import dev.marcos.uptime.monitor.dto.response.CheckResultSummaryResponse;
 import dev.marcos.uptime.monitor.dto.response.MonitorResponse;
+import dev.marcos.uptime.monitor.dto.response.UptimePercentageResponse;
 import dev.marcos.uptime.monitor.service.CheckResultService;
 import dev.marcos.uptime.monitor.service.MonitorService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 
 @RestController
@@ -60,6 +61,12 @@ public class MonitorController {
     public ResponseEntity<List<CheckResultSummaryResponse>> getPageOfChecksMonitor(@PathVariable Long id,
                                                                                    @RequestParam(defaultValue = "0") Integer pageNumber){
         return ResponseEntity.ok().body(checkService.getMonitorCheckHistory(id, pageNumber));
+    }
+    @GetMapping("/{id}/checks/uptime-percentage")
+    public ResponseEntity<UptimePercentageResponse> getUptimePercentageMonitor(@PathVariable Long id,
+                                                                               @RequestParam Instant from,
+                                                                               @RequestParam Instant to){
+        return ResponseEntity.ok().body(checkService.getPercentOfSuccessInPeriod(from,to,id));
     }
 
 
