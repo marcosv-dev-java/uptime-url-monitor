@@ -3,6 +3,7 @@ package dev.marcos.uptime.monitor.service;
 import dev.marcos.uptime.monitor.dto.request.MonitorRequest;
 import dev.marcos.uptime.monitor.dto.request.MonitorUpdateRequest;
 import dev.marcos.uptime.monitor.dto.request.PauseRequest;
+import dev.marcos.uptime.monitor.dto.response.InactiveMonitorResponse;
 import dev.marcos.uptime.monitor.dto.response.MonitorResponse;
 import dev.marcos.uptime.monitor.exceptions.MonitorNotFoundException;
 import dev.marcos.uptime.monitor.model.Monitor;
@@ -98,12 +99,21 @@ public class MonitorService {
         monitor.setPausedUntil(null);
         repository.save(monitor);
     }
-    public List<MonitorResponse> getInactiveMonitors(){
+    public List<InactiveMonitorResponse> getInactiveMonitors(){
         User user = getUserInContext();
         List<Monitor> monitors = repository.findInactiveMonitorByOwner(user);
-        List<MonitorResponse> monitorResponses = new ArrayList<>();
+        List<InactiveMonitorResponse> monitorResponses = new ArrayList<>();
         for (Monitor monitor : monitors) {
-            monitorResponses.add(entityToResponse(monitor));
+            monitorResponses.add(
+                    new InactiveMonitorResponse(
+                            monitor.getId(),
+                            monitor.getName(),
+                            monitor.getUrl(),
+                            monitor.getLastCheckedAt(),
+                            monitor.getCurrentStatus(),
+                            monitor.getActive()
+                    )
+            );
         }
         return monitorResponses;
     }

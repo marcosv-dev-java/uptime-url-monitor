@@ -4,6 +4,7 @@ import dev.marcos.uptime.monitor.dto.request.MonitorRequest;
 import dev.marcos.uptime.monitor.dto.request.MonitorUpdateRequest;
 import dev.marcos.uptime.monitor.dto.request.PauseRequest;
 import dev.marcos.uptime.monitor.dto.response.CheckResultSummaryResponse;
+import dev.marcos.uptime.monitor.dto.response.InactiveMonitorResponse;
 import dev.marcos.uptime.monitor.dto.response.MonitorResponse;
 import dev.marcos.uptime.monitor.dto.response.UptimePercentageResponse;
 import dev.marcos.uptime.monitor.service.CheckResultService;
@@ -67,6 +68,10 @@ public class MonitorController {
                                                                                @RequestParam Instant from,
                                                                                @RequestParam Instant to){
         return ResponseEntity.ok().body(checkService.getPercentOfSuccessInPeriod(from,to,id));
+    }
+    @GetMapping("/inactive")
+    public ResponseEntity<List<InactiveMonitorResponse>> getInactiveMonitors(){
+        return ResponseEntity.ok(service.getInactiveMonitors());
     }
 
 
