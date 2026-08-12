@@ -192,6 +192,21 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <h2>Edit monitor</h2>
+        <input type="hidden" id="editMonitorId">
+        <div class="field"><label>Name</label><input id="editName" type="text" placeholder="My website"></div>
+        <div class="field"><label>URL</label><input id="editUrl" type="text" placeholder="https://example.com"></div>
+        <div class="field"><label>Check interval (seconds)</label><input id="editInterval" type="number" min="30"></div>
+        <div class="error-msg" id="editError"></div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+            <button class="btn-primary" style="width:auto;padding:9px 20px" onclick="doEditMonitor()">Save</button>
+        </div>
+    </div>
+</div>
+
 <div class="modal-overlay" id="pauseModal">
     <div class="modal">
         <h2>Pause monitor</h2>
@@ -321,8 +336,8 @@
             <div class="card-url">${escHtml(m.url)}</div>
             <div class="card-meta">${m.lastCheckedAt ? 'Last checked ' + timeAgo(m.lastCheckedAt) : 'Not checked yet'}</div>
             <div class="card-actions">
-              <button class="btn-sm warn" onclick="event.stopPropagation(); openPauseModal(${m.id})">Pause</button>
-              <button class="btn-sm ok" onclick="event.stopPropagation(); doUnpause(${m.id})">Unpause</button>
+              <button class="btn-sm" onclick="event.stopPropagation(); openEditModal(${m.id}, '${escHtml(m.name||'')}', '${escHtml(m.url)}', ${m.intervalSeconds||300})">Edit</button>
+              ${!m.pausedUntil ? '<button class="btn-sm warn" onclick="event.stopPropagation(); openPauseModal(' + m.id + ')">Pause</button>' : '<button class="btn-sm ok" onclick="event.stopPropagation(); doUnpause(' + m.id + ')">Unpause</button>'}
               <button class="btn-sm danger" onclick="event.stopPropagation(); deleteMonitor(${m.id})">Delete</button>
             </div>
           </div>
@@ -423,6 +438,28 @@
         if (r.ok) { showToast('Monitor resumed', 'ok'); loadMonitors(); }
         else { const d = await r.json(); showToast(d.message || 'Failed to unpause', 'err'); }
       } catch(e) { showToast('Could not reach the server', 'err'); }
+    }
+
+    function openEditModal(id, name, url, interval) {
+      document.getElementById('editMonitorId').value = id;
+      document.getElementById('editName').value = name;
+      document.getElementById('editUrl').value = url;
+      document.getElementById('editInterval').value = interval;
+      document.getElementById('editError').textContent = '';
+      document.getElementById('editModal').classList.add('open');
+    }
+    function closeEditModal() { document.getElementById('editModal').classList.remove('open'); }
+
+    async function doEditMonitor() {
+      const id = document.getElementById('editMonitorId').value;
+      const name = document.getElementById('editName').value.trim() || null;
+      const url = document.getElementById('editUrl').value.trim() || null;
+      const intervalSeconds = parseInt(document.getElementById('editInterval').value) || null;
+      try {
+        const r = await fetch(API + '/monitors/' + id, { method: 'PUT', headers: getHeaders(), body: JSON.stringify({name, url, intervalSeconds}) });
+        if (r.ok) { closeEditModal(); showToast('Monitor updated', 'ok'); loadMonitors(); }
+        else { const d = await r.json(); document.getElementById('editError').textContent = d.message || 'Failed to update'; }
+      } catch(e) { document.getElementById('editError').textContent = 'Could not reach the server'; }
     }
 
     async function loadAdminMonitors() {
