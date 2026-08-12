@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uptime Monitor</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+        .app { display: none; }
+        .auth-page { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1rem; }
+        .auth-card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px; padding: 2rem; width: 100%; max-width: 400px; }
+        .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 2rem; }
+        .logo-dot { width: 10px; height: 10px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 8px #4ade80; }
+        .logo h1 { font-size: 18px; font-weight: 600; color: #f1f5f9; letter-spacing: -0.3px; }
+        .tab-row { display: flex; gap: 4px; background: #12141e; border-radius: 8px; padding: 4px; margin-bottom: 1.5rem; }
+        .tab { flex: 1; padding: 8px; text-align: center; border-radius: 6px; cursor: pointer; font-size: 14px; color: #64748b; border: none; background: transparent; transition: all 0.15s; }
+        .tab.active { background: #1a1d27; color: #e2e8f0; }
+        .field { margin-bottom: 1rem; }
+        .field label { display: block; font-size: 13px; color: #64748b; margin-bottom: 6px; }
+        .field input { width: 100%; padding: 10px 12px; background: #12141e; border: 1px solid #2d3148; border-radius: 8px; color: #e2e8f0; font-size: 14px; outline: none; transition: border-color 0.15s; }
+        .field input:focus { border-color: #4ade80; }
+        .pass-wrap { position: relative; }
+        .pass-wrap input { padding-right: 40px; }
+        .pass-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #475569; font-size: 16px; line-height: 1; padding: 0; }
+        .pass-toggle:hover { color: #94a3b8; }
+        .btn-primary { width: 100%; padding: 11px; background: #4ade80; border: none; border-radius: 8px; color: #0f1117; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+        .btn-primary:hover { opacity: 0.9; }
+        .error-msg { font-size: 13px; color: #f87171; margin-top: 0.75rem; text-align: center; min-height: 18px; }
+        nav { background: #1a1d27; border-bottom: 1px solid #2d3148; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+        .nav-logo { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: #f1f5f9; }
+        .nav-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 6px #4ade80; }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .nav-user { font-size: 13px; color: #64748b; }
+        .nav-tabs { display: flex; gap: 4px; }
+        .nav-tab { padding: 6px 14px; background: transparent; border: 1px solid transparent; border-radius: 6px; color: #64748b; font-size: 13px; cursor: pointer; transition: all 0.15s; }
+        .nav-tab.active { border-color: #2d3148; color: #e2e8f0; background: #12141e; }
+        .nav-tab:hover { color: #e2e8f0; }
+        .btn-logout { padding: 6px 14px; background: transparent; border: 1px solid #2d3148; border-radius: 6px; color: #64748b; font-size: 13px; cursor: pointer; }
+        .btn-logout:hover { border-color: #4d5473; color: #e2e8f0; }
+        main { padding: 1.5rem; max-width: 960px; margin: 0 auto; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+        .section-title { font-size: 16px; font-weight: 500; color: #f1f5f9; }
+        .btn-add { display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: #4ade80; border: none; border-radius: 8px; color: #0f1117; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .btn-add:hover { opacity: 0.9; }
+        .monitor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+        .monitor-card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px; padding: 1rem 1.25rem; cursor: pointer; transition: border-color 0.15s; }
+        .monitor-card:hover { border-color: #4d5473; }
+        .monitor-card.selected { border-color: #4ade80; }
+        .card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+        .card-name { font-size: 14px; font-weight: 500; color: #f1f5f9; }
+        .card-url { font-size: 12px; color: #64748b; margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+        .badge-up { background: rgba(74,222,128,0.1); color: #4ade80; }
+        .badge-down { background: rgba(248,113,113,0.1); color: #f87171; }
+        .badge-unknown { background: rgba(100,116,139,0.15); color: #94a3b8; }
+        .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .badge-up .badge-dot { background: #4ade80; }
+        .badge-down .badge-dot { background: #f87171; }
+        .badge-unknown .badge-dot { background: #94a3b8; }
+        .card-meta { font-size: 12px; color: #475569; }
+        .card-actions { display: flex; gap: 6px; margin-top: 10px; }
+        .btn-sm { padding: 5px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; border: 1px solid #2d3148; background: transparent; color: #64748b; transition: all 0.15s; }
+        .btn-sm:hover { border-color: #4d5473; color: #e2e8f0; }
+        .btn-sm.danger:hover { border-color: #f87171; color: #f87171; }
+        .empty-state { text-align: center; padding: 3rem; color: #475569; }
+        .empty-state p { font-size: 14px; margin-top: 8px; }
+        .detail-panel { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px; padding: 1.25rem; }
+        .detail-title { font-size: 15px; font-weight: 500; color: #f1f5f9; margin-bottom: 1rem; }
+        .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem; }
+        .stat-card { background: #12141e; border-radius: 8px; padding: 12px; }
+        .stat-label { font-size: 11px; color: #475569; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-val { font-size: 22px; font-weight: 500; color: #f1f5f9; }
+        .stat-val.green { color: #4ade80; }
+        .history-list { display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow-y: auto; }
+        .history-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: #12141e; border-radius: 8px; font-size: 13px; }
+        .history-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .history-status.ok { background: #4ade80; }
+        .history-status.fail { background: #f87171; }
+        .history-time { color: #64748b; font-size: 12px; margin-left: auto; }
+        .history-code { color: #94a3b8; }
+        .history-ms { color: #64748b; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px; padding: 1.5rem; width: 100%; max-width: 420px; }
+        .modal h2 { font-size: 16px; font-weight: 500; margin-bottom: 1.25rem; color: #f1f5f9; }
+        .modal-actions { display: flex; gap: 8px; margin-top: 1.25rem; justify-content: flex-end; }
+        .btn-cancel { padding: 9px 16px; background: transparent; border: 1px solid #2d3148; border-radius: 8px; color: #64748b; font-size: 14px; cursor: pointer; }
+        .btn-cancel:hover { color: #e2e8f0; }
+        .loading { text-align: center; padding: 2rem; color: #475569; font-size: 14px; }
+        .admin-field { display: flex; gap: 8px; margin-bottom: 1rem; }
+        .admin-field input { flex: 1; padding: 10px 12px; background: #12141e; border: 1px solid #2d3148; border-radius: 8px; color: #e2e8f0; font-size: 14px; outline: none; }
+        .admin-field input:focus { border-color: #4ade80; }
+        .admin-field button { padding: 10px 16px; background: #4ade80; border: none; border-radius: 8px; color: #0f1117; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+        .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: #1a1d27; border: 1px solid #2d3148; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #e2e8f0; z-index: 200; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+        .toast.show { opacity: 1; }
+        .toast.ok { border-color: #4ade80; color: #4ade80; }
+        .toast.err { border-color: #f87171; color: #f87171; }
+    </style>
+</head>
+<body>
+
+<div class="auth-page" id="authPage">
+    <div class="auth-card">
+        <div class="logo"><div class="logo-dot"></div><h1>Uptime Monitor</h1></div>
+        <div class="tab-row">
+            <button class="tab active" onclick="switchTab('login')">Sign in</button>
+            <button class="tab" onclick="switchTab('register')">Register</button>
+        </div>
+        <div id="loginForm">
+            <div class="field"><label>Username</label><input id="loginUser" type="text" placeholder="your username"></div>
+            <div class="field">
+                <label>Password</label>
+                <div class="pass-wrap">
+                    <input id="loginPass" type="password" placeholder="••••••••">
+                    <button class="pass-toggle" type="button" onclick="togglePass('loginPass', this)">&#128065;</button>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="doLogin()">Sign in</button>
+        </div>
+        <div id="registerForm" style="display:none">
+            <div class="field"><label>Username</label><input id="regUser" type="text" placeholder="choose a username"></div>
+            <div class="field">
+                <label>Password</label>
+                <div class="pass-wrap">
+                    <input id="regPass" type="password" placeholder="••••••••">
+                    <button class="pass-toggle" type="button" onclick="togglePass('regPass', this)">&#128065;</button>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="doRegister()">Create account</button>
+        </div>
+        <div class="error-msg" id="authError"></div>
+    </div>
+</div>
+
+<div class="app" id="appPage">
+    <nav>
+        <div class="nav-logo"><div class="nav-dot"></div> Uptime Monitor</div>
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showPage('monitors', this)">Monitors</button>
+            <button class="nav-tab" onclick="showPage('admin', this)">Admin</button>
+        </div>
+        <div class="nav-right">
+            <span class="nav-user" id="navUser"></span>
+            <button class="btn-logout" onclick="logout()">Sign out</button>
+        </div>
+    </nav>
+    <main>
+        <div class="page active" id="pageMonitors">
+            <div class="section-header">
+                <span class="section-title">Your monitors</span>
+                <button class="btn-add" onclick="openAddModal()">+ Add monitor</button>
+            </div>
+            <div class="monitor-grid" id="monitorGrid"><div class="loading">Loading…</div></div>
+            <div id="detailSection" style="display:none">
+                <div class="detail-panel">
+                    <div class="detail-title" id="detailTitle">Check history</div>
+                    <div class="stat-row" id="statRow"></div>
+                    <div class="history-list" id="historyList"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page" id="pageAdmin">
+            <div class="section-header"><span class="section-title">Admin — monitors by user</span></div>
+            <div class="admin-field">
+                <input id="adminUsername" type="text" placeholder="Enter username">
+                <button onclick="loadAdminMonitors()">Search</button>
+            </div>
+            <div class="monitor-grid" id="adminGrid"></div>
+        </div>
+    </main>
+</div>
+
+<div class="modal-overlay" id="addModal">
+    <div class="modal">
+        <h2>Add monitor</h2>
+        <div class="field"><label>Name (optional)</label><input id="mName" type="text" placeholder="My website"></div>
+        <div class="field"><label>URL</label><input id="mUrl" type="text" placeholder="https://example.com"></div>
+        <div class="field"><label>Check interval (seconds)</label><input id="mInterval" type="number" value="300" min="30"></div>
+        <div class="error-msg" id="addError"></div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+            <button class="btn-primary" style="width:auto;padding:9px 20px" onclick="doAddMonitor()">Add monitor</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+    const API = 'http://localhost:8080';
+    let token = localStorage.getItem('um_token');
+    let username = localStorage.getItem('um_user');
+    let selectedMonitorId = null;
+
+    function getHeaders() {
+      return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+    }
+
+    function togglePass(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      btn.innerHTML = show ? '&#128683;' : '&#128065;';
+    }
+
+    function showToast(msg, type) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast show ' + (type || '');
+      setTimeout(() => t.className = 'toast', 2500);
+    }
+
+    function showPage(name, btn) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('page' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (tab==='login'&&i===0)||(tab==='register'&&i===1)));
+      document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+      document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
+      document.getElementById('authError').textContent = '';
+    }
+
+    async function doLogin() {
+      const user = document.getElementById('loginUser').value.trim();
+      const pass = document.getElementById('loginPass').value;
+      try {
+        const r = await fetch(API + '/auth/login', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({username:user, password:pass}) });
+        const d = await r.json();
+        if (!r.ok) { document.getElementById('authError').textContent = d.message || 'Invalid credentials'; return; }
+        token = d.token; username = user;
+        localStorage.setItem('um_token', token); localStorage.setItem('um_user', username);
+        showApp();
+      } catch(e) { document.getElementById('authError').textContent = 'Could not reach the server'; }
+    }
+
+    async function doRegister() {
+      const user = document.getElementById('regUser').value.trim();
+      const pass = document.getElementById('regPass').value;
+      try {
+        const r = await fetch(API + '/auth/register', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({username:user, password:pass}) });
+        const d = await r.json();
+        if (!r.ok) { document.getElementById('authError').textContent = d.message || 'Registration failed'; return; }
+        token = d.token; username = user;
+        localStorage.setItem('um_token', token); localStorage.setItem('um_user', username);
+        showApp();
+      } catch(e) { document.getElementById('authError').textContent = 'Could not reach the server'; }
+    }
+
+    function logout() {
+      localStorage.removeItem('um_token'); localStorage.removeItem('um_user');
+      token = null; username = null; selectedMonitorId = null;
+      document.getElementById('appPage').style.display = 'none';
+      document.getElementById('authPage').style.display = 'flex';
+      document.getElementById('detailSection').style.display = 'none';
+    }
+
+    function showApp() {
+      document.getElementById('authPage').style.display = 'none';
+      document.getElementById('appPage').style.display = 'block';
+      document.getElementById('navUser').textContent = username;
+      loadMonitors();
+    }
+
+    async function loadMonitors() {
+      const grid = document.getElementById('monitorGrid');
+      grid.innerHTML = '<div class="loading">Loading…</div>';
+      try {
+        const r = await fetch(API + '/monitors', { headers: getHeaders() });
+        if (r.status === 401 || r.status === 403) { logout(); return; }
+        const monitors = await r.json();
+        if (!monitors.length) {
+          grid.innerHTML = '<div class="empty-state"><strong>No monitors yet</strong><p>Add your first URL to start monitoring</p></div>';
+          return;
+        }
+        grid.innerHTML = monitors.map(m => `
+          <div class="monitor-card ${m.id === selectedMonitorId ? 'selected' : ''}" id="card-${m.id}" onclick="selectMonitor(${m.id}, '${escHtml(m.name || m.url)}', this)">
+            <div class="card-top">
+              <span class="card-name">${escHtml(m.name || 'Unnamed')}</span>
+              <span class="badge badge-${(m.status||'unknown').toLowerCase()}">
+                <span class="badge-dot"></span>${m.status || 'UNKNOWN'}
+              </span>
+            </div>
+            <div class="card-url">${escHtml(m.url)}</div>
+            <div class="card-meta">${m.lastCheckedAt ? 'Last checked ' + timeAgo(m.lastCheckedAt) : 'Not checked yet'}</div>
+            <div class="card-actions">
+              <button class="btn-sm danger" onclick="event.stopPropagation(); deleteMonitor(${m.id})">Delete</button>
+            </div>
+          </div>
+        `).join('');
+      } catch(e) { grid.innerHTML = '<div class="loading">Failed to load monitors</div>'; }
+    }
+
+    async function selectMonitor(id, name, cardEl) {
+      selectedMonitorId = id;
+      document.querySelectorAll('.monitor-card').forEach(c => c.classList.remove('selected'));
+      cardEl.classList.add('selected');
+      const section = document.getElementById('detailSection');
+      section.style.display = 'block';
+      document.getElementById('detailTitle').textContent = name + ' — recent checks';
+      document.getElementById('statRow').innerHTML = '<div class="loading">Loading…</div>';
+      document.getElementById('historyList').innerHTML = '';
+      try {
+        const [histRes, uptimeRes] = await Promise.all([
+          fetch(API + '/monitors/' + id + '/checks?pageNumber=0', { headers: getHeaders() }),
+          fetch(API + '/monitors/' + id + '/checks/uptime-percentage?from=' + thirtyDaysAgo() + '&to=' + nowISO(), { headers: getHeaders() })
+        ]);
+        const history = await histRes.json();
+        const uptime = uptimeRes.ok ? await uptimeRes.json() : null;
+        const last = history[0];
+        document.getElementById('statRow').innerHTML = `
+          <div class="stat-card"><div class="stat-label">Uptime (30d)</div><div class="stat-val green">${uptime && uptime.percentage != null ? uptime.percentage.toFixed(1) + '%' : '—'}</div></div>
+          <div class="stat-card"><div class="stat-label">Last response</div><div class="stat-val">${last && last.responseTimeMs != null ? last.responseTimeMs + 'ms' : '—'}</div></div>
+          <div class="stat-card"><div class="stat-label">Last status</div><div class="stat-val">${last && last.httpStatus ? last.httpStatus : '—'}</div></div>
+        `;
+        document.getElementById('historyList').innerHTML = history.length ? history.map(h => `
+          <div class="history-item">
+            <div class="history-status ${h.success ? 'ok' : 'fail'}"></div>
+            <span class="history-code">${h.httpStatus || (h.errorMessage ? 'Error' : '—')}</span>
+            <span class="history-ms">${h.responseTimeMs != null ? h.responseTimeMs + 'ms' : ''}</span>
+            ${h.errorMessage ? '<span style="color:#f87171;font-size:12px">' + escHtml(h.errorMessage.substring(0,60)) + '</span>' : ''}
+            <span class="history-time">${timeAgo(h.checkedAt)}</span>
+          </div>
+        `).join('') : '<div style="color:#475569;font-size:13px;padding:8px">No checks recorded yet</div>';
+      } catch(e) { document.getElementById('statRow').innerHTML = '<div style="color:#f87171;font-size:13px">Failed to load data</div>'; }
+    }
+
+    async function deleteMonitor(id) {
+      if (!confirm('Delete this monitor?')) return;
+      try {
+        const r = await fetch(API + '/monitors/' + id, { method: 'DELETE', headers: getHeaders() });
+        if (r.ok) {
+          showToast('Monitor deleted', 'ok');
+          if (selectedMonitorId === id) {
+            document.getElementById('detailSection').style.display = 'none';
+            selectedMonitorId = null;
+          }
+          await loadMonitors();
+        } else {
+          const d = await r.json();
+          showToast(d.message || 'Failed to delete', 'err');
+        }
+      } catch(e) { showToast('Could not reach the server', 'err'); }
+    }
+
+    async function loadAdminMonitors() {
+      const user = document.getElementById('adminUsername').value.trim();
+      if (!user) return;
+      const grid = document.getElementById('adminGrid');
+      grid.innerHTML = '<div class="loading">Loading…</div>';
+      try {
+        const r = await fetch(API + '/admin/user/' + encodeURIComponent(user) + '/monitors', { headers: getHeaders() });
+        if (r.status === 403) { grid.innerHTML = '<div class="loading">Access denied — admin only</div>'; return; }
+        const monitors = await r.json();
+        if (!monitors.length) { grid.innerHTML = '<div class="empty-state"><p>No monitors found for this user</p></div>'; return; }
+        grid.innerHTML = monitors.map(m => `
+          <div class="monitor-card">
+            <div class="card-top">
+              <span class="card-name">${escHtml(m.name || 'Unnamed')}</span>
+              <span class="badge badge-${(m.status||'unknown').toLowerCase()}">
+                <span class="badge-dot"></span>${m.status || 'UNKNOWN'}
+              </span>
+            </div>
+            <div class="card-url">${escHtml(m.url)}</div>
+            <div class="card-meta">${m.active ? 'Active' : 'Inactive'}</div>
+          </div>
+        `).join('');
+      } catch(e) { grid.innerHTML = '<div class="loading">Failed to load</div>'; }
+    }
+
+    function openAddModal() { document.getElementById('addModal').classList.add('open'); document.getElementById('addError').textContent = ''; }
+    function closeAddModal() { document.getElementById('addModal').classList.remove('open'); }
+
+    async function doAddMonitor() {
+      const name = document.getElementById('mName').value.trim();
+      const url = document.getElementById('mUrl').value.trim();
+      const interval = parseInt(document.getElementById('mInterval').value) || 300;
+      if (!url) { document.getElementById('addError').textContent = 'URL is required'; return; }
+      try {
+        const r = await fetch(API + '/monitors', { method: 'POST', headers: getHeaders(), body: JSON.stringify({name, url, intervalSeconds: interval}) });
+        const d = await r.json();
+        if (!r.ok) { document.getElementById('addError').textContent = d.message || 'Failed to add monitor'; return; }
+        closeAddModal();
+        document.getElementById('mName').value = ''; document.getElementById('mUrl').value = ''; document.getElementById('mInterval').value = '300';
+        showToast('Monitor added', 'ok');
+        loadMonitors();
+      } catch(e) { document.getElementById('addError').textContent = 'Could not reach the server'; }
+    }
+
+    function escHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function timeAgo(iso) {
+      const diff = Math.floor((Date.now() - new Date(iso)) / 1000);
+      if (diff < 60) return diff + 's ago';
+      if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+      if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+      return Math.floor(diff/86400) + 'd ago';
+    }
+    function thirtyDaysAgo() { return new Date(Date.now() - 30*24*3600*1000).toISOString(); }
+    function nowISO() { return new Date().toISOString(); }
+
+    if (token) { showApp(); } else { document.getElementById('authPage').style.display = 'flex'; }
+    setInterval(() => { if (token) loadMonitors(); }, 30000);
+</script>
+</body>
+</html>

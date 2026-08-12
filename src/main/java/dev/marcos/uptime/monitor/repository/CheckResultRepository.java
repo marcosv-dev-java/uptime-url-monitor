@@ -15,7 +15,7 @@ public interface CheckResultRepository extends JpaRepository<CheckResult, Long> 
 
      Page<CheckResult>findByMonitor(Monitor monitor, Pageable pageable);
 
-     @Query("SELECT (COUNT(CASE WHEN c.success = true THEN 1 END) * 100.0) / COUNT(c) " +
+     @Query("SELECT (COUNT(CASE WHEN c.success = true THEN 1 END) * 100.0) / NULLIF(COUNT(c), 0) " +
     "FROM CheckResult c " +
     "WHERE c.monitor = :monitor " +
     "AND c.checkedAt BETWEEN :from AND :to")

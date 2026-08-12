@@ -1,0 +1,1 @@
+ALTER TABLE tb_check_result ALTER COLUMN error_message TYPE VARCHAR(1000)

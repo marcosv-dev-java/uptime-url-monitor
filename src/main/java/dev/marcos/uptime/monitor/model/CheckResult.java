@@ -26,7 +26,7 @@ public class CheckResult {
     private Long responseTimeMs;
     @Column(nullable = false)
     private Boolean success;
-    @Column(name = "error_message")
+    @Column(name = "error_message", length = 1000)
     private String errorMessage;
 
     public CheckResult(Monitor monitor, Instant checkedAt, Integer httpStatus, Long responseTimeMs, Boolean success, String errorMessage) {

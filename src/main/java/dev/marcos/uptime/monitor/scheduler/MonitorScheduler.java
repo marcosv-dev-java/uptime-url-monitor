@@ -49,7 +49,7 @@ public class MonitorScheduler {
              httpCode = response.getStatusCode().value();
              success = httpCode < 400;
         }catch (Exception e){
-             errorMessage = e.getMessage();
+            errorMessage = e.getMessage() != null ? e.getMessage().substring(0, Math.min(e.getMessage().length(), 500)) : null;
         }
         finally {
             Instant end = Instant.now();
