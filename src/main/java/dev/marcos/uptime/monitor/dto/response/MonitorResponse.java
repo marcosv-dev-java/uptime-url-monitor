@@ -10,6 +10,7 @@ public record MonitorResponse(
         String url,
         Instant lastCheckedAt,
         Instant nextCheckDue,
-        MonitorStatus status
+        MonitorStatus status,
+        Instant pausedUntil
 ) {
 }

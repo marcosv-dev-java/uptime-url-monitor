@@ -14,7 +14,8 @@ public interface MonitorRepository extends JpaRepository<Monitor, Long> {
 
     Optional<Monitor> findByName(String name);
     Optional<Monitor> findByUrl(String url);
-    @Query("SELECT m FROM Monitor m WHERE m.owner = :user")
+    @Query("SELECT m FROM Monitor m WHERE m.owner = :user " +
+            "AND (m.active = true)")
     List<Monitor> findMonitorByOwner(@Param("user")User user);
     @Query("SELECT m FROM Monitor m WHERE m.owner = :user " +
             "AND (m.active = false)")

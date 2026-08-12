@@ -37,7 +37,8 @@ public class MonitorService {
                 .orElseThrow(() -> new UsernameNotFoundException("Username " + context.getUsername() + " not found"));
     }
     private MonitorResponse entityToResponse(Monitor monitor){
-        return new MonitorResponse(monitor.getId(), monitor.getName(), monitor.getUrl(), monitor.getLastCheckedAt(), monitor.getNextCheckDue(), monitor.getCurrentStatus());
+        return new MonitorResponse(monitor.getId(), monitor.getName(), monitor.getUrl(), monitor.getLastCheckedAt(), monitor.getNextCheckDue(), monitor.getCurrentStatus(),
+                monitor.getPausedUntil());
     }
     private Monitor getMonitorWithIDORPrevention(Long id){
         Monitor monitor = repository.findById(id)

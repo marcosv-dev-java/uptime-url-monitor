@@ -12,7 +12,7 @@
         .auth-card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px; padding: 2rem; width: 100%; max-width: 400px; }
         .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 2rem; }
         .logo-dot { width: 10px; height: 10px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 8px #4ade80; }
-        .logo h1 { font-size: 18px; font-weight: 600; color: #f1f5f9; letter-spacing: -0.3px; }
+        .logo h1 { font-size: 18px; font-weight: 600; color: #f1f5f9; }
         .tab-row { display: flex; gap: 4px; background: #12141e; border-radius: 8px; padding: 4px; margin-bottom: 1.5rem; }
         .tab { flex: 1; padding: 8px; text-align: center; border-radius: 6px; cursor: pointer; font-size: 14px; color: #64748b; border: none; background: transparent; transition: all 0.15s; }
         .tab.active { background: #1a1d27; color: #e2e8f0; }
@@ -22,20 +22,20 @@
         .field input:focus { border-color: #4ade80; }
         .pass-wrap { position: relative; }
         .pass-wrap input { padding-right: 40px; }
-        .pass-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #475569; font-size: 16px; line-height: 1; padding: 0; }
+        .pass-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #475569; font-size: 15px; padding: 0; line-height: 1; }
         .pass-toggle:hover { color: #94a3b8; }
-        .btn-primary { width: 100%; padding: 11px; background: #4ade80; border: none; border-radius: 8px; color: #0f1117; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+        .btn-primary { width: 100%; padding: 11px; background: #4ade80; border: none; border-radius: 8px; color: #0f1117; font-size: 14px; font-weight: 600; cursor: pointer; }
         .btn-primary:hover { opacity: 0.9; }
         .error-msg { font-size: 13px; color: #f87171; margin-top: 0.75rem; text-align: center; min-height: 18px; }
         nav { background: #1a1d27; border-bottom: 1px solid #2d3148; padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 56px; }
         .nav-logo { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 600; color: #f1f5f9; }
         .nav-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 6px #4ade80; }
-        .nav-right { display: flex; align-items: center; gap: 12px; }
-        .nav-user { font-size: 13px; color: #64748b; }
         .nav-tabs { display: flex; gap: 4px; }
         .nav-tab { padding: 6px 14px; background: transparent; border: 1px solid transparent; border-radius: 6px; color: #64748b; font-size: 13px; cursor: pointer; transition: all 0.15s; }
         .nav-tab.active { border-color: #2d3148; color: #e2e8f0; background: #12141e; }
         .nav-tab:hover { color: #e2e8f0; }
+        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .nav-user { font-size: 13px; color: #64748b; }
         .btn-logout { padding: 6px 14px; background: transparent; border: 1px solid #2d3148; border-radius: 6px; color: #64748b; font-size: 13px; cursor: pointer; }
         .btn-logout:hover { border-color: #4d5473; color: #e2e8f0; }
         main { padding: 1.5rem; max-width: 960px; margin: 0 auto; }
@@ -43,12 +43,13 @@
         .page.active { display: block; }
         .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
         .section-title { font-size: 16px; font-weight: 500; color: #f1f5f9; }
-        .btn-add { display: flex; align-items: center; gap: 6px; padding: 8px 14px; background: #4ade80; border: none; border-radius: 8px; color: #0f1117; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .btn-add { padding: 8px 14px; background: #4ade80; border: none; border-radius: 8px; color: #0f1117; font-size: 13px; font-weight: 600; cursor: pointer; }
         .btn-add:hover { opacity: 0.9; }
         .monitor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 2rem; }
         .monitor-card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px; padding: 1rem 1.25rem; cursor: pointer; transition: border-color 0.15s; }
         .monitor-card:hover { border-color: #4d5473; }
         .monitor-card.selected { border-color: #4ade80; }
+        .monitor-card.inactive-card { opacity: 0.7; cursor: default; }
         .card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
         .card-name { font-size: 14px; font-weight: 500; color: #f1f5f9; }
         .card-url { font-size: 12px; color: #64748b; margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -56,17 +57,18 @@
         .badge-up { background: rgba(74,222,128,0.1); color: #4ade80; }
         .badge-down { background: rgba(248,113,113,0.1); color: #f87171; }
         .badge-unknown { background: rgba(100,116,139,0.15); color: #94a3b8; }
+        .badge-inactive { background: rgba(100,116,139,0.1); color: #64748b; }
         .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
         .badge-up .badge-dot { background: #4ade80; }
         .badge-down .badge-dot { background: #f87171; }
-        .badge-unknown .badge-dot { background: #94a3b8; }
+        .badge-unknown .badge-dot, .badge-inactive .badge-dot { background: #64748b; }
         .card-meta { font-size: 12px; color: #475569; }
-        .card-actions { display: flex; gap: 6px; margin-top: 10px; }
+        .card-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
         .btn-sm { padding: 5px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; border: 1px solid #2d3148; background: transparent; color: #64748b; transition: all 0.15s; }
         .btn-sm:hover { border-color: #4d5473; color: #e2e8f0; }
         .btn-sm.danger:hover { border-color: #f87171; color: #f87171; }
-        .empty-state { text-align: center; padding: 3rem; color: #475569; }
-        .empty-state p { font-size: 14px; margin-top: 8px; }
+        .btn-sm.warn:hover { border-color: #fbbf24; color: #fbbf24; }
+        .btn-sm.ok:hover { border-color: #4ade80; color: #4ade80; }
         .detail-panel { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px; padding: 1.25rem; }
         .detail-title { font-size: 15px; font-weight: 500; color: #f1f5f9; margin-bottom: 1rem; }
         .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem; }
@@ -82,6 +84,8 @@
         .history-time { color: #64748b; font-size: 12px; margin-left: auto; }
         .history-code { color: #94a3b8; }
         .history-ms { color: #64748b; }
+        .empty-state { text-align: center; padding: 3rem; color: #475569; }
+        .empty-state p { font-size: 14px; margin-top: 8px; }
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; align-items: center; justify-content: center; }
         .modal-overlay.open { display: flex; }
         .modal { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px; padding: 1.5rem; width: 100%; max-width: 420px; }
@@ -89,11 +93,11 @@
         .modal-actions { display: flex; gap: 8px; margin-top: 1.25rem; justify-content: flex-end; }
         .btn-cancel { padding: 9px 16px; background: transparent; border: 1px solid #2d3148; border-radius: 8px; color: #64748b; font-size: 14px; cursor: pointer; }
         .btn-cancel:hover { color: #e2e8f0; }
+        .admin-row { display: flex; gap: 8px; margin-bottom: 1rem; }
+        .admin-row input { flex: 1; padding: 10px 12px; background: #12141e; border: 1px solid #2d3148; border-radius: 8px; color: #e2e8f0; font-size: 14px; outline: none; }
+        .admin-row input:focus { border-color: #4ade80; }
+        .admin-row button { padding: 10px 16px; background: #4ade80; border: none; border-radius: 8px; color: #0f1117; font-size: 13px; font-weight: 600; cursor: pointer; }
         .loading { text-align: center; padding: 2rem; color: #475569; font-size: 14px; }
-        .admin-field { display: flex; gap: 8px; margin-bottom: 1rem; }
-        .admin-field input { flex: 1; padding: 10px 12px; background: #12141e; border: 1px solid #2d3148; border-radius: 8px; color: #e2e8f0; font-size: 14px; outline: none; }
-        .admin-field input:focus { border-color: #4ade80; }
-        .admin-field button { padding: 10px 16px; background: #4ade80; border: none; border-radius: 8px; color: #0f1117; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
         .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: #1a1d27; border: 1px solid #2d3148; border-radius: 8px; padding: 12px 16px; font-size: 13px; color: #e2e8f0; z-index: 200; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
         .toast.show { opacity: 1; }
         .toast.ok { border-color: #4ade80; color: #4ade80; }
@@ -111,23 +115,17 @@
         </div>
         <div id="loginForm">
             <div class="field"><label>Username</label><input id="loginUser" type="text" placeholder="your username"></div>
-            <div class="field">
-                <label>Password</label>
-                <div class="pass-wrap">
-                    <input id="loginPass" type="password" placeholder="••••••••">
-                    <button class="pass-toggle" type="button" onclick="togglePass('loginPass', this)">&#128065;</button>
-                </div>
+            <div class="field"><label>Password</label>
+                <div class="pass-wrap"><input id="loginPass" type="password" placeholder="••••••••">
+                    <button class="pass-toggle" type="button" onclick="togglePass('loginPass',this)">👁</button></div>
             </div>
             <button class="btn-primary" onclick="doLogin()">Sign in</button>
         </div>
         <div id="registerForm" style="display:none">
             <div class="field"><label>Username</label><input id="regUser" type="text" placeholder="choose a username"></div>
-            <div class="field">
-                <label>Password</label>
-                <div class="pass-wrap">
-                    <input id="regPass" type="password" placeholder="••••••••">
-                    <button class="pass-toggle" type="button" onclick="togglePass('regPass', this)">&#128065;</button>
-                </div>
+            <div class="field"><label>Password</label>
+                <div class="pass-wrap"><input id="regPass" type="password" placeholder="••••••••">
+                    <button class="pass-toggle" type="button" onclick="togglePass('regPass',this)">👁</button></div>
             </div>
             <button class="btn-primary" onclick="doRegister()">Create account</button>
         </div>
@@ -139,8 +137,9 @@
     <nav>
         <div class="nav-logo"><div class="nav-dot"></div> Uptime Monitor</div>
         <div class="nav-tabs">
-            <button class="nav-tab active" onclick="showPage('monitors', this)">Monitors</button>
-            <button class="nav-tab" onclick="showPage('admin', this)">Admin</button>
+            <button class="nav-tab active" id="tabMonitors" onclick="showPage('Monitors',this)">Monitors</button>
+            <button class="nav-tab" id="tabTrash" onclick="showPage('Trash',this)">Trash</button>
+            <button class="nav-tab" id="tabAdmin" style="display:none" onclick="showPage('Admin',this)">Admin</button>
         </div>
         <div class="nav-right">
             <span class="nav-user" id="navUser"></span>
@@ -163,9 +162,14 @@
             </div>
         </div>
 
+        <div class="page" id="pageTrash">
+            <div class="section-header"><span class="section-title">Deleted monitors</span></div>
+            <div class="monitor-grid" id="trashGrid"><div class="loading">Loading…</div></div>
+        </div>
+
         <div class="page" id="pageAdmin">
             <div class="section-header"><span class="section-title">Admin — monitors by user</span></div>
-            <div class="admin-field">
+            <div class="admin-row">
                 <input id="adminUsername" type="text" placeholder="Enter username">
                 <button onclick="loadAdminMonitors()">Search</button>
             </div>
@@ -188,6 +192,26 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="pauseModal">
+    <div class="modal">
+        <h2>Pause monitor</h2>
+        <input type="hidden" id="pauseMonitorId">
+        <div class="field"><label>Duration</label><input id="pauseDuration" type="number" value="60" min="1"></div>
+        <div class="field"><label>Unit</label>
+            <select id="pauseUnit" style="width:100%;padding:10px 12px;background:#12141e;border:1px solid #2d3148;border-radius:8px;color:#e2e8f0;font-size:14px;outline:none;">
+                <option value="MINUTE">Minutes</option>
+                <option value="HOUR">Hours</option>
+                <option value="DAY">Days</option>
+            </select>
+        </div>
+        <div class="error-msg" id="pauseError"></div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closePauseModal()">Cancel</button>
+            <button class="btn-primary" style="width:auto;padding:9px 20px" onclick="doPause()">Pause</button>
+        </div>
+    </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -200,25 +224,29 @@
       return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
     }
 
-    function togglePass(inputId, btn) {
-      const input = document.getElementById(inputId);
+    function getRoleFromToken(t) {
+      try { return JSON.parse(atob(t.split('.')[1])).role; } catch(e) { return null; }
+    }
+
+    function togglePass(id, btn) {
+      const input = document.getElementById(id);
       const show = input.type === 'password';
       input.type = show ? 'text' : 'password';
-      btn.innerHTML = show ? '&#128683;' : '&#128065;';
+      btn.textContent = show ? '🙈' : '👁';
     }
 
     function showToast(msg, type) {
       const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.className = 'toast show ' + (type || '');
+      t.textContent = msg; t.className = 'toast show ' + (type||'');
       setTimeout(() => t.className = 'toast', 2500);
     }
 
     function showPage(name, btn) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-      document.getElementById('page' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
+      document.getElementById('page' + name).classList.add('active');
       btn.classList.add('active');
+      if (name === 'Trash') loadTrash();
     }
 
     function switchTab(tab) {
@@ -266,6 +294,8 @@
       document.getElementById('authPage').style.display = 'none';
       document.getElementById('appPage').style.display = 'block';
       document.getElementById('navUser').textContent = username;
+      const role = getRoleFromToken(token);
+      if (role === 'ROLE_ADMIN') document.getElementById('tabAdmin').style.display = 'inline-block';
       loadMonitors();
     }
 
@@ -281,7 +311,7 @@
           return;
         }
         grid.innerHTML = monitors.map(m => `
-          <div class="monitor-card ${m.id === selectedMonitorId ? 'selected' : ''}" id="card-${m.id}" onclick="selectMonitor(${m.id}, '${escHtml(m.name || m.url)}', this)">
+          <div class="monitor-card ${m.id === selectedMonitorId ? 'selected' : ''}" onclick="selectMonitor(${m.id}, '${escHtml(m.name || m.url)}', this)">
             <div class="card-top">
               <span class="card-name">${escHtml(m.name || 'Unnamed')}</span>
               <span class="badge badge-${(m.status||'unknown').toLowerCase()}">
@@ -291,11 +321,36 @@
             <div class="card-url">${escHtml(m.url)}</div>
             <div class="card-meta">${m.lastCheckedAt ? 'Last checked ' + timeAgo(m.lastCheckedAt) : 'Not checked yet'}</div>
             <div class="card-actions">
+              <button class="btn-sm warn" onclick="event.stopPropagation(); openPauseModal(${m.id})">Pause</button>
+              <button class="btn-sm ok" onclick="event.stopPropagation(); doUnpause(${m.id})">Unpause</button>
               <button class="btn-sm danger" onclick="event.stopPropagation(); deleteMonitor(${m.id})">Delete</button>
             </div>
           </div>
         `).join('');
       } catch(e) { grid.innerHTML = '<div class="loading">Failed to load monitors</div>'; }
+    }
+
+    async function loadTrash() {
+      const grid = document.getElementById('trashGrid');
+      grid.innerHTML = '<div class="loading">Loading…</div>';
+      try {
+        const r = await fetch(API + '/monitors/inactive', { headers: getHeaders() });
+        const monitors = await r.json();
+        if (!monitors.length) {
+          grid.innerHTML = '<div class="empty-state"><strong>No deleted monitors</strong><p>Deleted monitors appear here</p></div>';
+          return;
+        }
+        grid.innerHTML = monitors.map(m => `
+          <div class="monitor-card inactive-card">
+            <div class="card-top">
+              <span class="card-name">${escHtml(m.name || 'Unnamed')}</span>
+              <span class="badge badge-inactive"><span class="badge-dot"></span>Inactive</span>
+            </div>
+            <div class="card-url">${escHtml(m.url)}</div>
+            <div class="card-meta">Last status: ${m.lastMonitorStatus || '—'} &nbsp;·&nbsp; ${m.lastCheckedAt ? timeAgo(m.lastCheckedAt) : 'never'}</div>
+          </div>
+        `).join('');
+      } catch(e) { grid.innerHTML = '<div class="loading">Failed to load</div>'; }
     }
 
     async function selectMonitor(id, name, cardEl) {
@@ -338,15 +393,35 @@
         const r = await fetch(API + '/monitors/' + id, { method: 'DELETE', headers: getHeaders() });
         if (r.ok) {
           showToast('Monitor deleted', 'ok');
-          if (selectedMonitorId === id) {
-            document.getElementById('detailSection').style.display = 'none';
-            selectedMonitorId = null;
-          }
-          await loadMonitors();
-        } else {
-          const d = await r.json();
-          showToast(d.message || 'Failed to delete', 'err');
-        }
+          if (selectedMonitorId === id) { document.getElementById('detailSection').style.display = 'none'; selectedMonitorId = null; }
+          loadMonitors();
+        } else { const d = await r.json(); showToast(d.message || 'Failed to delete', 'err'); }
+      } catch(e) { showToast('Could not reach the server', 'err'); }
+    }
+
+    function openPauseModal(id) {
+      document.getElementById('pauseMonitorId').value = id;
+      document.getElementById('pauseError').textContent = '';
+      document.getElementById('pauseModal').classList.add('open');
+    }
+    function closePauseModal() { document.getElementById('pauseModal').classList.remove('open'); }
+
+    async function doPause() {
+      const id = document.getElementById('pauseMonitorId').value;
+      const interval = parseInt(document.getElementById('pauseDuration').value) || 60;
+      const timeUnit = document.getElementById('pauseUnit').value;
+      try {
+        const r = await fetch(API + '/monitors/' + id + '/pause', { method: 'PUT', headers: getHeaders(), body: JSON.stringify({interval, timeUnit}) });
+        if (r.ok) { closePauseModal(); showToast('Monitor paused', 'ok'); loadMonitors(); }
+        else { const d = await r.json(); document.getElementById('pauseError').textContent = d.message || 'Failed to pause'; }
+      } catch(e) { document.getElementById('pauseError').textContent = 'Could not reach the server'; }
+    }
+
+    async function doUnpause(id) {
+      try {
+        const r = await fetch(API + '/monitors/' + id + '/unpause', { method: 'PUT', headers: getHeaders() });
+        if (r.ok) { showToast('Monitor resumed', 'ok'); loadMonitors(); }
+        else { const d = await r.json(); showToast(d.message || 'Failed to unpause', 'err'); }
       } catch(e) { showToast('Could not reach the server', 'err'); }
     }
 
@@ -357,16 +432,14 @@
       grid.innerHTML = '<div class="loading">Loading…</div>';
       try {
         const r = await fetch(API + '/admin/user/' + encodeURIComponent(user) + '/monitors', { headers: getHeaders() });
-        if (r.status === 403) { grid.innerHTML = '<div class="loading">Access denied — admin only</div>'; return; }
+        if (r.status === 403) { grid.innerHTML = '<div class="loading">Access denied</div>'; return; }
         const monitors = await r.json();
         if (!monitors.length) { grid.innerHTML = '<div class="empty-state"><p>No monitors found for this user</p></div>'; return; }
         grid.innerHTML = monitors.map(m => `
-          <div class="monitor-card">
+          <div class="monitor-card inactive-card">
             <div class="card-top">
               <span class="card-name">${escHtml(m.name || 'Unnamed')}</span>
-              <span class="badge badge-${(m.status||'unknown').toLowerCase()}">
-                <span class="badge-dot"></span>${m.status || 'UNKNOWN'}
-              </span>
+              <span class="badge badge-${(m.status||'unknown').toLowerCase()}"><span class="badge-dot"></span>${m.status||'UNKNOWN'}</span>
             </div>
             <div class="card-url">${escHtml(m.url)}</div>
             <div class="card-meta">${m.active ? 'Active' : 'Inactive'}</div>
@@ -386,11 +459,10 @@
       try {
         const r = await fetch(API + '/monitors', { method: 'POST', headers: getHeaders(), body: JSON.stringify({name, url, intervalSeconds: interval}) });
         const d = await r.json();
-        if (!r.ok) { document.getElementById('addError').textContent = d.message || 'Failed to add monitor'; return; }
+        if (!r.ok) { document.getElementById('addError').textContent = d.message || 'Failed to add'; return; }
         closeAddModal();
         document.getElementById('mName').value = ''; document.getElementById('mUrl').value = ''; document.getElementById('mInterval').value = '300';
-        showToast('Monitor added', 'ok');
-        loadMonitors();
+        showToast('Monitor added', 'ok'); loadMonitors();
       } catch(e) { document.getElementById('addError').textContent = 'Could not reach the server'; }
     }
 
