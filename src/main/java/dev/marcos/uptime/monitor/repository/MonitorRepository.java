@@ -16,6 +16,9 @@ public interface MonitorRepository extends JpaRepository<Monitor, Long> {
     Optional<Monitor> findByUrl(String url);
     @Query("SELECT m FROM Monitor m WHERE m.owner = :user")
     List<Monitor> findMonitorByOwner(@Param("user")User user);
+    @Query("SELECT m FROM Monitor m WHERE m.owner = :user " +
+            "AND (m.active = false)")
+    List<Monitor> findInactiveMonitorByOwner(@Param("user")User user);
 
     @Query("SELECT m FROM Monitor m WHERE m.nextCheckDue IS NULL OR m.nextCheckDue <:now" +
             " AND (m.pausedUntil IS NULL OR m.pausedUntil < :now )" +

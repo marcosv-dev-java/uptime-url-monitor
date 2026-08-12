@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -96,6 +97,15 @@ public class MonitorService {
             throw new IllegalStateException("Monitor is not paused.");
         monitor.setPausedUntil(null);
         repository.save(monitor);
+    }
+    public List<MonitorResponse> getInactiveMonitors(){
+        User user = getUserInContext();
+        List<Monitor> monitors = repository.findInactiveMonitorByOwner(user);
+        List<MonitorResponse> monitorResponses = new ArrayList<>();
+        for (Monitor monitor : monitors) {
+            monitorResponses.add(entityToResponse(monitor));
+        }
+        return monitorResponses;
     }
 
 }
