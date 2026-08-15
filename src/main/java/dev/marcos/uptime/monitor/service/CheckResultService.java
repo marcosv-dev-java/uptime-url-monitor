@@ -10,6 +10,7 @@ import dev.marcos.uptime.monitor.model.UserDetailsImpl;
 import dev.marcos.uptime.monitor.repository.CheckResultRepository;
 import dev.marcos.uptime.monitor.repository.MonitorRepository;
 import dev.marcos.uptime.monitor.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@Slf4j
 public class CheckResultService {
     private final CheckResultRepository repository;
     private final UserRepository userRepository;
@@ -38,20 +40,34 @@ public class CheckResultService {
 
     private User getUserInContext(){
         var context = (UserDetailsImpl) Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
-        return userRepository.findByUsername(context.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("Username " + context.getUsername() + " not found"));
+        try {
+            return userRepository.findByUsername(context.getUsername())
+                    .orElseThrow(() -> new UsernameNotFoundException("Username " + context.getUsername() + " not found"));
+        }catch (UsernameNotFoundException e){
+            log.warn("Username {} not found", context.getUsername());
+            throw e;
+        }
     }
     private Monitor getMonitorWithIDORPrevention(Long id){
-        Monitor monitor = monitorRepository.findById(id)
-                .orElseThrow(() -> new MonitorNotFoundException("Monitor not found."));
+        Monitor monitor;
+        try {
+             monitor = monitorRepository.findById(id)
+                    .orElseThrow(() -> new MonitorNotFoundException("Monitor not found."));
+        }catch (MonitorNotFoundException e){
+            log.warn("Monitor {} not found.", id);
+            throw e;
+        }
         User userInContext = getUserInContext();
-        if (!monitor.getOwner().getId().equals(userInContext.getId()))
-            throw new AccessDeniedException("User " + userInContext.getUsername() +  " are not permitted for this request.");
+        if (!monitor.getOwner().getId().equals(userInContext.getId())) {
+            log.warn("IDOR attempt: user {} tried to acess monitor owned by {}", userInContext.getId(), monitor.getOwner().getId());
+            throw new AccessDeniedException("User " + userInContext.getUsername() + " are not permitted for this request.");
+        }
         return monitor;
     }
 
 
     public List<CheckResultSummaryResponse> getMonitorCheckHistory(Long monitorId, Integer pageNumber){
+        log.info("Getting check history with id {} ", monitorId);
         Monitor monitor = getMonitorWithIDORPrevention(monitorId);
         Pageable pageable = PageRequest.of(pageNumber, 10, Sort.by(Sort.Direction.DESC , "checkedAt"));
         List<CheckResultSummaryResponse> responses = new ArrayList<>();
@@ -69,7 +85,8 @@ public class CheckResultService {
         }
         return  responses;
         }
-        public UptimePercentageResponse getPercentOfSuccessInPeriod(Instant startDate, Instant endDate, Long monitorId){
+        public UptimePercentageResponse getPercentOfSuccessInPeriod(Instant startDate, Instant endDate, Long monitorId) {
+            log.info("Getting uptime percentage for monitor {} from {} to {}", monitorId, startDate, endDate);
         Monitor monitor = this.getMonitorWithIDORPrevention(monitorId);
         Double percentOfSuccess = repository.findAverageBySuccess(startDate,endDate,monitor);
         return new UptimePercentageResponse(percentOfSuccess);
