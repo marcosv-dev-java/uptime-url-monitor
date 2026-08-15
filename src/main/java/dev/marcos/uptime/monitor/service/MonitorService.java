@@ -10,6 +10,7 @@ import dev.marcos.uptime.monitor.model.Monitor;
 import dev.marcos.uptime.monitor.model.User;
 import dev.marcos.uptime.monitor.model.UserDetailsImpl;
 import dev.marcos.uptime.monitor.repository.MonitorRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import dev.marcos.uptime.monitor.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@Slf4j
 public class MonitorService {
     private final MonitorRepository repository;
     private final UserRepository userRepository;
@@ -33,23 +35,37 @@ public class MonitorService {
     }
     private User getUserInContext(){
         var context = (UserDetailsImpl)Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getPrincipal();
-        return userRepository.findByUsername(context.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("Username " + context.getUsername() + " not found"));
+        try {
+            return userRepository.findByUsername(context.getUsername())
+                    .orElseThrow(() -> new UsernameNotFoundException("Username " + context.getUsername() + " not found"));
+        }catch (UsernameNotFoundException e){
+            log.warn("Username {} not found", context.getUsername());
+            throw e;
+        }
     }
     private MonitorResponse entityToResponse(Monitor monitor){
         return new MonitorResponse(monitor.getId(), monitor.getName(), monitor.getUrl(), monitor.getLastCheckedAt(), monitor.getNextCheckDue(), monitor.getCurrentStatus(),
                 monitor.getPausedUntil());
     }
     private Monitor getMonitorWithIDORPrevention(Long id){
-        Monitor monitor = repository.findById(id)
-                .orElseThrow(() -> new MonitorNotFoundException("Monitor not found."));
+        Monitor monitor;
+        try {
+            monitor = repository.findById(id)
+                    .orElseThrow(() -> new MonitorNotFoundException("Monitor not found."));
+        }catch (MonitorNotFoundException e){
+            log.warn("Monitor {} not found.", id);
+            throw e;
+        }
         User userInContext = getUserInContext();
-        if (!monitor.getOwner().getId().equals(userInContext.getId()))
-            throw new AccessDeniedException("User " + userInContext.getUsername() +  " are not permitted for this request.");
+        if (!monitor.getOwner().getId().equals(userInContext.getId())) {
+            log.warn("IDOR attempt: user {} tried to acess monitor owned by {}", userInContext.getId(), monitor.getOwner().getId());
+            throw new AccessDeniedException("User " + userInContext.getUsername() + " are not permitted for this request.");
+        }
         return monitor;
     }
 
     public MonitorResponse createMonitor(MonitorRequest request)  {
+        log.info("Creating monitor");
         Monitor monitor = new Monitor(request.name(),request.url(),request.intervalSeconds());
         User user = getUserInContext();
         monitor.setOwner(user);
@@ -58,10 +74,12 @@ public class MonitorService {
     }
 
     public MonitorResponse getMonitorById(Long id){
+        log.info("Getting monitor with id {}", id);
         Monitor monitor =  getMonitorWithIDORPrevention(id);
         return entityToResponse(monitor);
     }
     public List<MonitorResponse> getAllMonitors(){
+        log.info("Getting all monitors");
         return repository.findMonitorByOwner(getUserInContext())
                 .stream()
                 .map(this::entityToResponse)
@@ -69,6 +87,7 @@ public class MonitorService {
     }
 
     public MonitorResponse updateMonitor(Long id, MonitorUpdateRequest request){
+        log.info("Updating monitor with id {}", id);
         Monitor monitor = getMonitorWithIDORPrevention(id);
         if (!monitor.getActive()) throw new IllegalStateException("Cannot update a inactive monitor.");
         if (request.name() != null) monitor.setName(request.name());
@@ -79,6 +98,7 @@ public class MonitorService {
     }
 
     public MonitorResponse softDeleteMonitor(Long id){
+        log.info("Deleting monitor with id {}", id);
         Monitor monitor = getMonitorWithIDORPrevention(id);
         if (!monitor.getActive()) throw new IllegalStateException("Monitor already inactive.");
         monitor.setActive(false);
@@ -87,12 +107,14 @@ public class MonitorService {
     }
 
     public void pauseMonitorUntil(PauseRequest request, Long id){
+        log.info("Pausing monitor with id {} for {} {} ", id, request.interval(), request.timeUnit().toString());
         Monitor monitor = getMonitorWithIDORPrevention(id);
         if (!monitor.getActive()) throw new IllegalStateException("Cannot pause a inactive monitor.");
         monitor.setPausedUntil(Instant.now().plus(request.interval(), request.timeUnit().toChronoUnit()));
         repository.save(monitor);
     }
     public void forceResumeMonitor(Long id){
+        log.info("Resuming monitor with id {}", id);
         Monitor monitor = getMonitorWithIDORPrevention(id);
         if (!monitor.getActive()) throw new IllegalStateException("Cannot unpause a inactive monitor.");
         if (monitor.getPausedUntil() == null)
