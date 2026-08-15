@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import dev.marcos.uptime.monitor.model.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 @Service
+@Slf4j
 public class TokenService {
     @Value("${api.security.token.secret}")
     private String secret;
@@ -26,6 +28,7 @@ public class TokenService {
                     .withExpiresAt(generateExpirationDate())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
+            log.warn("Error while generating JWT token ", exception);
             throw new RuntimeException("Error while generating JWT Token");
         }
     }
@@ -39,7 +42,7 @@ public class TokenService {
                     .verify(token)
                     .getSubject();
         } catch (JWTVerificationException exception) {
-            System.out.println("VALIDATION FAILED: " + exception.getMessage());
+            log.debug("JWT validation failed: ", exception.getMessage());
             return null;
         }
     }
