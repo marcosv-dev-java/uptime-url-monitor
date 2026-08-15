@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import java.util.InputMismatchException;
-
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -26,10 +24,12 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException e){
+        log.warn("Access Denied: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(403,e.getMessage()));
     }
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException e){
+        log.warn("Illegal State: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(400,e.getMessage()));
     }
     @ExceptionHandler(NoResourceFoundException.class)
@@ -44,10 +44,12 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException e){
+        log.warn("Argument type mismatch: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(400, "Invalid type of arguments"));
     }
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException e){
+        log.warn("Bad credentials: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse(401, "Invalid username or password"));
     }
 }
