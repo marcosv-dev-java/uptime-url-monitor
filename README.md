@@ -11,6 +11,7 @@ A REST API that monitors URL availability, tracking uptime, response time, and s
 - PostgreSQL
 - Flyway
 - SpringDoc OpenAPI (Swagger)
+- Docker + Docker Compose
 - Maven
 
 ## Features
@@ -22,15 +23,55 @@ A REST API that monitors URL availability, tracking uptime, response time, and s
 - Uptime percentage calculation for any time period
 - Soft delete with inactive monitor listing
 - Timed pause/unpause for monitors
-- Decorative frontend (vanilla HTML/JS)
+- Frontend served by Spring Boot (vanilla HTML/JS)
 
-## Prerequisites
+---
+
+## Running with Docker (recommended)
+
+### Prerequisites
+
+- Docker Desktop
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/marcosv-dev-java/uptime-url-monitor.git
+cd uptime-url-monitor
+```
+
+### 2. Create the `.env` file
+
+```env
+DB_URL=jdbc:postgresql://postgres:5432/db_uptime_monitor
+DB_USERNAME=your_postgres_username
+DB_PASSWORD=your_postgres_password
+JWT_SECRET=your_secret_key_at_least_32_characters
+```
+
+### 3. Build and run
+
+```bash
+mvn package -DskipTests
+docker compose up --build
+```
+
+Docker Compose starts both the application and PostgreSQL. Flyway runs all migrations automatically on startup.
+
+### 4. Access the application
+
+- Frontend: http://localhost:8080
+- Swagger UI: http://localhost:8080/swagger-ui/index.html
+
+---
+
+## Running locally (without Docker)
+
+### Prerequisites
 
 - Java 21
 - PostgreSQL 14+
 - Maven 3.9+
-
-## Getting Started
 
 ### 1. Clone the repository
 
@@ -45,17 +86,14 @@ cd uptime-url-monitor
 CREATE DATABASE db_uptime_monitor;
 ```
 
-### 3. Configure environment variables
-
-The application reads database credentials and the JWT secret from environment variables. Set the following before running:
+### 3. Set environment variables
 
 ```bash
+DB_URL=jdbc:postgresql://localhost:5432/db_uptime_monitor
 DB_USERNAME=your_postgres_username
 DB_PASSWORD=your_postgres_password
 JWT_SECRET=your_secret_key_at_least_32_characters
 ```
-
-Or create a `.env` file and export them in your shell session.
 
 ### 4. Run the application
 
@@ -64,10 +102,6 @@ Or create a `.env` file and export them in your shell session.
 ```
 
 Flyway will automatically run all migrations on startup and create the required tables.
-
-### 5. Open the frontend
-
-Open `frontend/index.html` in your browser via a local server (e.g. IntelliJ's built-in server or VS Code Live Server).
 
 ---
 
@@ -149,10 +183,4 @@ Paused monitors are skipped until their `pausedUntil` timestamp has passed.
 - JWT tokens include username and role as claims
 - Every monitor endpoint with `{id}` validates ownership before responding — accessing another user's monitor returns 403
 - CSRF is disabled intentionally: the API is stateless (JWT, no session cookies), so there is no CSRF surface to protect
-- CORS is configured to allow only `http://localhost:63342` in development
-
----
-
-## Repository
-
-[github.com/marcosv-dev-java/uptime-url-monitor](https://github.com/marcosv-dev-java/uptime-url-monitor)
+- CORS is configured for local development
