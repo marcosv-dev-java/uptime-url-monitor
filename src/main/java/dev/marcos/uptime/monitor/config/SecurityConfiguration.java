@@ -35,6 +35,8 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(request ->
                         request.requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
                                 .requestMatchers(HttpMethod.POST,"/auth/register").permitAll()
+                                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                                .requestMatchers("/", "/index.html", "/**.js", "/**.css").permitAll()
                                 .anyRequest().authenticated())
                 .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -48,7 +50,10 @@ public class SecurityConfiguration {
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:63342"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:63342",
+                "http://localhost:8080"
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","PATCH"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
