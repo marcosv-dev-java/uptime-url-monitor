@@ -58,7 +58,7 @@ public class MonitorService {
         }
         User userInContext = getUserInContext();
         if (!monitor.getOwner().getId().equals(userInContext.getId())) {
-            log.warn("IDOR attempt: user {} tried to acess monitor owned by {}", userInContext.getId(), monitor.getOwner().getId());
+            log.warn("IDOR attempt: user {} tried to access monitor owned by {}", userInContext.getId(), monitor.getOwner().getId());
             throw new AccessDeniedException("User " + userInContext.getUsername() + " are not permitted for this request.");
         }
         return monitor;
